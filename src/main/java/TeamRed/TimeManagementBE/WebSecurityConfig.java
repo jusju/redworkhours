@@ -40,43 +40,46 @@ public class WebSecurityConfig {
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(userDetailsService).passwordEncoder(new BCryptPasswordEncoder());
 	}
-	
-    @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(new BCryptPasswordEncoder());
-        return authenticationManagerBuilder.build();
-    }
-    
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-    	CorsConfiguration configuration = new CorsConfiguration();
-    	configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
-    	configuration.setAllowedMethods(Arrays.asList("GET", "POST"));
-    	configuration.setAllowedHeaders(Arrays.asList("*"));
-    	configuration.setAllowCredentials(true);
-    	UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    	source.registerCorsConfiguration("/**", configuration);
-    	return source; 	
-    }
-    
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    	http
-    	.csrf(csrf -> csrf.disable())
-    	.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
-    	.authorizeHttpRequests(authorize -> authorize
-    			.requestMatchers(antMatcher("/h2-console*")).permitAll()
-    			//.requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
-    			.requestMatchers(antMatcher("/login")).permitAll()
-    			.requestMatchers(antMatcher(HttpMethod.POST,"/users")).permitAll()
-    			.anyRequest().authenticated())
-    	.sessionManagement(management -> management
-    			.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-    	.exceptionHandling(exception -> exception.authenticationEntryPoint(exceptionHandler))
-    	.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
-    	
-        return http.build();
-    }
+
+	@Bean
+	public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+		AuthenticationManagerBuilder authenticationManagerBuilder = http
+				.getSharedObject(AuthenticationManagerBuilder.class);
+		authenticationManagerBuilder.userDetailsService(userDetailsService)
+				.passwordEncoder(new BCryptPasswordEncoder());
+		return authenticationManagerBuilder.build();
+	}
+
+	@Bean
+	CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOrigins(Arrays.asList("https://teamred-ohjelmistoprojekti2.github.io/TimeManagement/"));
+		configuration.setAllowedMethods(Arrays.asList("GET", "POST"));
+		configuration.setAllowedHeaders(Arrays.asList("*"));
+		configuration.setAllowCredentials(true);
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
+	}
+
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http
+				.csrf(csrf -> csrf.disable())
+				.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer
+						.configurationSource(corsConfigurationSource()))
+				.authorizeHttpRequests(authorize -> authorize
+						.requestMatchers(antMatcher("/h2-console*")).permitAll()
+						// .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
+						.requestMatchers(antMatcher("/login")).permitAll()
+						.requestMatchers(antMatcher(HttpMethod.POST, "/users")).permitAll()
+						.anyRequest().authenticated())
+				.sessionManagement(management -> management
+						.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.exceptionHandling(exception -> exception.authenticationEntryPoint(exceptionHandler))
+				.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+		return http.build();
+	}
 
 }
